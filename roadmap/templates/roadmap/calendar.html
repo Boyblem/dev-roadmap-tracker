@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Календарь — DevRoadmap Tracker</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.18/index.global.min.css"
+        rel="stylesheet"
+    >
+
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.18/index.global.min.js"></script>
+
+    <style>
+        body {
+            background: white;
+            color: black;
+            font-family: Arial, sans-serif;
+            transition: 0.3s;
+            padding: 20px;
+        }
+
+        body.dark {
+            background: #121212;
+            color: white;
+        }
+
+        body.dark a {
+            color: #66b3ff;
+        }
+
+        button {
+            padding: 8px 12px;
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+
+        #calendar {
+            max-width: 100%;
+            margin: 20px auto;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 26px;
+            }
+
+            button {
+                width: 100%;
+                padding: 12px;
+                font-size: 16px;
+            }
+
+            #calendar {
+                font-size: 13px;
+            }
+
+            .fc .fc-toolbar {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .fc .fc-toolbar-title {
+                font-size: 20px;
+            }
+
+            .fc .fc-button {
+                padding: 6px 8px;
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>Календарь</h1>
+
+<button id="theme-toggle">🌙 Тёмная тема</button>
+
+<br>
+
+<a href="{% url 'dashboard' %}">← На главную</a>
+
+<br><br>
+
+<div id="calendar"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const calendarEl = document.getElementById('calendar');
+
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        locale: 'ru',
+        height: 'auto',
+        events: {{ events|safe }}
+    });
+
+    calendar.render();
+});
+</script>
+
+<script>
+    const button = document.getElementById('theme-toggle');
+
+    if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark');
+        button.textContent = '☀️ Светлая тема';
+    }
+
+    button.addEventListener('click', function () {
+        document.body.classList.toggle('dark');
+
+        if (document.body.classList.contains('dark')) {
+            localStorage.setItem('theme', 'dark');
+            button.textContent = '☀️ Светлая тема';
+        } else {
+            localStorage.setItem('theme', 'light');
+            button.textContent = '🌙 Тёмная тема';
+        }
+    });
+</script>
+
+</body>
+</html>

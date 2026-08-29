@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevRoadmap Tracker</title>
+
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 30px;
+            background: #f4f6f8;
+            color: #222;
+            font-family: Arial, sans-serif;
+            transition: background 0.4s ease, color 0.4s ease;
+            animation: pageAppear 0.6s ease;
+        }
+
+        body.dark {
+            background: #121212;
+            color: #f1f1f1;
+        }
+
+        body.comfort {
+            background: #e8e1d4;
+            color: #35312b;
+        }
+
+        body.dark a {
+            color: #66b3ff;
+        }
+
+        body.comfort a {
+            color: #6b5b45;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+            animation: slideDown 0.6s ease;
+        }
+
+        h2 {
+            margin-top: 25px;
+        }
+
+        h3 {
+            animation: slideDown 0.7s ease;
+        }
+
+        button {
+            padding: 10px 16px;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 15px;
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease,
+                background 0.3s ease;
+        }
+
+        button:hover {
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        button:active {
+            transform: scale(0.97);
+        }
+
+        progress {
+            width: 100%;
+            max-width: 500px;
+            height: 20px;
+        }
+
+        #map {
+            width: 100%;
+            max-width: 700px;
+            height: 350px;
+            margin: 25px 0;
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        .task-card {
+            margin: 20px 0;
+            padding: 20px;
+            max-width: 700px;
+            background: white;
+            border-radius: 14px;
+            border: 1px solid #ddd;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            transition:
+                transform 0.25s ease,
+                box-shadow 0.25s ease,
+                background 0.3s ease;
+            animation: cardAppear 0.6s ease;
+        }
+
+        .task-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.14);
+        }
+
+        body.dark .task-card {
+            background: #1e1e1e;
+            border-color: #444;
+        }
+
+        body.comfort .task-card {
+            background: #f2ede4;
+            border-color: #d2c8b8;
+        }
+
+        .task-card strong {
+            font-size: 18px;
+            transition: color 0.2s ease;
+        }
+
+        .task-card:hover strong {
+            color: #6c8cff;
+        }
+
+        .task-card p {
+            line-height: 1.5;
+        }
+
+        .countdown {
+            font-weight: bold;
+            margin-top: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        .completed-message {
+            font-weight: bold;
+            margin-top: 8px;
+            animation: completedPop 0.4s ease;
+        }
+
+        .task-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            margin-right: 8px;
+            vertical-align: middle;
+            transition: transform 0.2s ease;
+        }
+
+        .task-checkbox:hover {
+            transform: scale(1.25);
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 10px 14px;
+            text-decoration: none;
+            border-radius: 8px;
+            transition:
+                transform 0.2s ease,
+                background 0.2s ease,
+                box-shadow 0.2s ease;
+        }
+
+        a:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 14px rgba(0, 0, 0, 0.12);
+        }
+
+        a:active {
+            transform: scale(0.97);
+        }
+
+        @keyframes pageAppear {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes cardAppear {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes completedPop {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.65;
+            }
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 15px;
+                font-size: 16px;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+
+            h2 {
+                font-size: 22px;
+            }
+
+            h3 {
+                font-size: 18px;
+            }
+
+            button {
+                width: 100%;
+                padding: 12px;
+                font-size: 16px;
+            }
+
+            #map {
+                height: 280px;
+            }
+
+            .task-card {
+                padding: 15px;
+                margin: 15px 0;
+            }
+
+            .task-card strong {
+                font-size: 17px;
+            }
+
+            a {
+                display: block;
+                text-align: center;
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>DevRoadmap Tracker</h1>
+
+<button id="theme-toggle">🌿 Комфортная тема</button>
+
+{% if user.is_authenticated %}
+
+    <h2>Привет, {{ user.username }}!</h2>
+
+    <h3>{{ roadmap.title }}</h3>
+    <p>{{ roadmap.description }}</p>
+
+    <h2>Дорожная карта</h2>
+
+    <h3>Прогресс: {{ progress_percent }}%</h3>
+
+    <p>
+        Выполнено: {{ completed_tasks_count }} из {{ total_tasks_count }}
+    </p>
+
+    <progress value="{{ progress_percent }}" max="100"></progress>
+
+    <h2>🗺️ Карта</h2>
+
+    <div id="map"></div>
+
+    {% for task in tasks %}
+        <div class="task-card">
+
+            <form method="post" action="{% url 'toggle_task' task.id %}">
+                {% csrf_token %}
+
+                <input
+                    type="checkbox"
+                    class="task-checkbox"
+                    onchange="confirmTask(this)"
+                    {% if task.user_progress.is_completed %}checked{% endif %}
+                >
+
+                <strong>{{ task.title }}</strong>
+
+                {% if task.user_progress.is_completed %}
+                    <p class="completed-message">
+                        ✅ Задача выполнена!
+                    </p>
+                {% endif %}
+
+                {% if task.user_progress.deadline %}
+                    <p>
+                        Дедлайн:
+                        {{ task.user_progress.deadline|date:"d.m.Y H:i" }}
+                    </p>
+
+                    <p
+                        class="countdown"
+                        data-deadline="{{ task.user_progress.deadline|date:'c' }}"
+                    >
+                        ⏳ Загрузка...
+                    </p>
+                {% else %}
+                    <p>Дедлайн не установлен</p>
+                {% endif %}
+
+                {% if task.deadline_warning %}
+                    <p style="color: red; font-weight: bold;">
+                        {{ task.deadline_warning }}
+                    </p>
+                {% endif %}
+
+                <p>{{ task.description }}</p>
+
+            </form>
+        </div>
+
+    {% empty %}
+        <p>Задач пока нет.</p>
+    {% endfor %}
+
+    <br>
+
+    <a href="{% url 'calendar' %}">📅 Календарь</a>
+
+    <br><br>
+
+    <a href="{% url 'logout' %}">Выйти</a>
+
+{% endif %}
+
+<script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const map = L.map('map').setView([20, 0], 2);
+
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        L.marker([42.8746, 74.5698])
+            .addTo(map)
+            .bindPopup(
+                '<b>DevRoadmap Tracker</b><br>Бишкек'
+            )
+            .openPopup();
+    });
+</script>
+
+<script>
+    function confirmTask(checkbox) {
+        if (checkbox.checked) {
+            const confirmed = confirm(
+                "Отметить задачу как выполненную?"
+            );
+
+            if (confirmed) {
+                checkbox.form.submit();
+            } else {
+                checkbox.checked = false;
+            }
+        } else {
+            checkbox.form.submit();
+        }
+    }
+</script>
+
+<script>
+    const button = document.getElementById('theme-toggle');
+
+    function applyTheme(theme) {
+        document.body.classList.remove('dark', 'comfort');
+
+        if (theme === 'dark') {
+            document.body.classList.add('dark');
+            button.textContent = '☀️ Светлая тема';
+        } else if (theme === 'comfort') {
+            document.body.classList.add('comfort');
+            button.textContent = '🌿 Комфортная тема';
+        } else {
+            button.textContent = '🌙 Тёмная тема';
+        }
+    }
+
+    let currentTheme = localStorage.getItem('theme');
+
+    if (!currentTheme) {
+        currentTheme = 'comfort';
+        localStorage.setItem('theme', 'comfort');
+    }
+
+    applyTheme(currentTheme);
+
+    button.addEventListener('click', function () {
+        if (currentTheme === 'comfort') {
+            currentTheme = 'dark';
+        } else if (currentTheme === 'dark') {
+            currentTheme = 'light';
+        } else {
+            currentTheme = 'comfort';
+        }
+
+        localStorage.setItem('theme', currentTheme);
+        applyTheme(currentTheme);
+    });
+</script>
+
+<script>
+    function updateCountdowns() {
+        const countdowns = document.querySelectorAll('.countdown');
+
+        countdowns.forEach(function (element) {
+            const deadline = new Date(element.dataset.deadline);
+            const now = new Date();
+            const difference = deadline - now;
+
+            if (difference <= 0) {
+                element.textContent = '⛔ Дедлайн истёк';
+                return;
+            }
+
+            const days = Math.floor(
+                difference / (1000 * 60 * 60 * 24)
+            );
+
+            const hours = Math.floor(
+                (difference % (1000 * 60 * 60 * 24)) /
+                (1000 * 60 * 60)
+            );
+
+            const minutes = Math.floor(
+                (difference % (1000 * 60 * 60)) /
+                (1000 * 60)
+            );
+
+            element.textContent =
+                `⏳ Осталось: ${days} дн. ${hours} ч. ${minutes} мин.`;
+        });
+    }
+
+    updateCountdowns();
+    setInterval(updateCountdowns, 60000);
+</script>
+
+</body>
+</html>
